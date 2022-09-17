@@ -4,15 +4,7 @@
 
 # COMMAND ----------
 
-storage_account_name = "formul1adls"
-storage_account_key  = "qYLNVmVhHGR7H8sSg/hiJz7jxX5zCCfErINRQBkH1YieO4/FZ9fZKOQ73H6YRwsWp2wRVSIT5Qve+AStJWoNEg=="
-
-spark.conf.set(
-    f"fs.azure.account.key.{storage_account_name}.dfs.core.windows.net",
-    f"{storage_account_key}")
-
-container_name = "raw" 
-container_name1 = "processed"
+# MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
 
@@ -42,6 +34,10 @@ circuits_df = spark.read \
 
 # COMMAND ----------
 
+circuits_df.show()
+
+# COMMAND ----------
+
 circuits_selected_df = circuits_df.select(col("circuitId"), col("circuitRef"), col("name"), col("location"), col("country"), col("lat"), col("lng"), col("alt"))
 
 circuits_renamed_df = circuits_selected_df.withColumnRenamed("circuitId", "circuit_id") \
@@ -51,6 +47,10 @@ circuits_renamed_df = circuits_selected_df.withColumnRenamed("circuitId", "circu
 .withColumnRenamed("alt", "altitude") 
 
 circuits_final_df = circuits_renamed_df.withColumn("ingestion_date", current_timestamp()) 
+
+# COMMAND ----------
+
+circuits_final_df.show()
 
 # COMMAND ----------
 
@@ -77,6 +77,10 @@ races_df = spark.read \
 
 # COMMAND ----------
 
+display(races_df)
+
+# COMMAND ----------
+
 races_with_timestamp_df = races_df.withColumn("ingestion_date", current_timestamp()) \
                                   .withColumn("race_timestamp", to_timestamp(concat(col('date'), lit(' '), col('time')), 'yyyy-MM-dd HH:mm:ss'))
 
@@ -99,6 +103,10 @@ constructor_df = spark.read \
 
 # COMMAND ----------
 
+display(constructor_df)
+
+# COMMAND ----------
+
 constructor_dropped_df = constructor_df.drop(col('url'))
 
 constructor_final_df = constructor_dropped_df.withColumnRenamed("constructorId", "constructor_id") \
@@ -107,4 +115,12 @@ constructor_final_df = constructor_dropped_df.withColumnRenamed("constructorId",
 
 # COMMAND ----------
 
-constructor_final_df.write.mode("overwrite").parquet(f"abfss://{container_name}@{storage_account_name}.dfs.core.windows.net/constructors")
+display(constructor_final_df)
+
+# COMMAND ----------
+
+constructor_final_df.write.mode("overwrite").parquet(f"abfss://{container_name1}@{storage_account_name}.dfs.core.windows.net/constructors")
+
+# COMMAND ----------
+
+# MAGIC %run "/project_1/DATA_INJEST//END"

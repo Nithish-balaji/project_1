@@ -1,13 +1,5 @@
 # Databricks notebook source
-storage_account_name = "formul1adls"
-storage_account_key  = "qYLNVmVhHGR7H8sSg/hiJz7jxX5zCCfErINRQBkH1YieO4/FZ9fZKOQ73H6YRwsWp2wRVSIT5Qve+AStJWoNEg=="
-
-spark.conf.set(
-    f"fs.azure.account.key.{storage_account_name}.dfs.core.windows.net",
-    f"{storage_account_key}")
-
-container_name = "raw" 
-container_name1 = "processed"
+# MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
 
@@ -28,6 +20,10 @@ lap_times_df = spark.read \
 
 # COMMAND ----------
 
+lap_times_df.count()
+
+# COMMAND ----------
+
 from pyspark.sql.functions import current_timestamp
 
 final_df = lap_times_df.withColumnRenamed("driverId", "driver_id") \
@@ -36,8 +32,8 @@ final_df = lap_times_df.withColumnRenamed("driverId", "driver_id") \
 
 # COMMAND ----------
 
-final_df.write.mode("overwrite").parquet(f"abfss://{container_name}@{storage_account_name}.dfs.core.windows.net/lap_times")
+final_df.write.mode("overwrite").parquet(f"abfss://{container_name1}@{storage_account_name}.dfs.core.windows.net/lap_times")
 
 # COMMAND ----------
 
-
+# MAGIC %run "/project_1/DATA_INJEST//END"
